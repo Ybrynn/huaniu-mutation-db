@@ -381,6 +381,20 @@ app.get('/api/geo/elevation', (req, res) => {
   r.on('error', (e) => res.status(502).json({ error: e.message }));
 });
 
+app.get('/api/admin/uploads-list', adminOnly, (req, res) => {
+  try {
+    const rows = query(`SELECT DISTINCT image_path, location_image FROM mutations WHERE image_path != '' OR location_image != ''`);
+    const files = [];
+    for (const r of rows) {
+      if (r.image_path) files.push(r.image_path.replace(/^\//, ''));
+      if (r.location_image) files.push(r.location_image.replace(/^\//, ''));
+    }
+    res.json(files);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.get('/api/admin/db-download', adminOnly, (req, res) => {
   try {
     const dbPath = path.join(DATA_DIR, 'mutations.db');
