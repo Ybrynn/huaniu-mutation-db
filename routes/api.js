@@ -381,6 +381,19 @@ app.get('/api/geo/elevation', (req, res) => {
   r.on('error', (e) => res.status(502).json({ error: e.message }));
 });
 
+app.get('/api/admin/db-download', adminOnly, (req, res) => {
+  try {
+    const dbPath = path.join(DATA_DIR, 'mutations.db');
+    if (!fs.existsSync(dbPath)) return res.status(404).json({ error: '数据库文件不存在' });
+    res.setHeader('Content-Type', 'application/octet-stream');
+    res.setHeader('Content-Disposition', 'attachment; filename=mutations.db');
+    const stream = fs.createReadStream(dbPath);
+    stream.pipe(res);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.get('/api/export/xlsx', adminOnly, (req, res) => {
   try {
     const XLSX = require('xlsx');
