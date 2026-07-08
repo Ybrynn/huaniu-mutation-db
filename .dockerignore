@@ -1,11 +1,11 @@
 node_modules
 .git
-*.bat
-*.vbs
+uploads
+backups
 *.log
 *.err
-.DS_Store
-Thumbs.db
-backups
-uploads
+*.bat
+*.vbs
+*.exe
+.gitignore
 .env
