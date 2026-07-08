@@ -45,6 +45,28 @@ app.get('/api/auth/me', (req, res) => {
   res.json({ user: { id: payload.id, username: payload.username, role: payload.role, can_edit: payload.can_edit, can_upload: payload.can_upload } });
 });
 
+app.put('/api/auth/password', (req, res) => {
+  try {
+    const token = req.headers['x-auth-token'];
+    if (!token) return res.status(401).json({ error: '请先登录' });
+    const payload = verifyToken(token);
+    if (!payload) return res.status(401).json({ error: '登录已过期' });
+    const { old_password, new_password } = req.body;
+    if (!old_password || !new_password) return res.status(400).json({ error: '请填写旧密码和新密码' });
+    if (new_password.length < 6) return res.status(400).json({ error: '新密码至少6个字符' });
+    const user = queryOne(`SELECT * FROM users WHERE id = ?`, [payload.id]);
+    if (!user) return res.status(404).json({ error: '用户不存在' });
+    const oldHash = crypto.pbkdf2Sync(old_password, user.salt, 10000, 64, 'sha512').toString('hex');
+    if (oldHash !== user.password_hash) return res.status(400).json({ error: '旧密码错误' });
+    const salt = crypto.randomBytes(16).toString('hex');
+    const hash = crypto.pbkdf2Sync(new_password, salt, 10000, 64, 'sha512').toString('hex');
+    execute(`UPDATE users SET password_hash=?, salt=? WHERE id=?`, [hash, salt, payload.id]);
+    res.json({ message: '密码修改成功' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.use('/api', (req, res, next) => {
   if (req.path.startsWith('/auth/') || req.path.startsWith('/geo/')) return next();
   const token = req.headers['x-auth-token'];

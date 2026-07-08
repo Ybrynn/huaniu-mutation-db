@@ -122,6 +122,10 @@ const api = {
     if (r.status === 403) throw new Error('权限不足');
     return r.json();
   },
+  async changePassword(old_password, new_password) {
+    const r = await fetch('/api/auth/password', { method: 'PUT', headers: { ...authHeaders(), 'Content-Type': 'application/json' }, body: JSON.stringify({ old_password, new_password }) });
+    return r.json();
+  },
   async exportXlsx() {
     const r = await fetch('/api/export/xlsx', { headers: authHeaders() });
     if (r.status === 401) handleUnauth();
@@ -144,6 +148,34 @@ function toast(msg) {
   setTimeout(() => t.classList.add('hidden'), 2500);
 }
 
+function openChangePwdModal() {
+  document.getElementById('changePwdModal').classList.remove('hidden');
+  document.getElementById('changePwdOld').value = '';
+  document.getElementById('changePwdNew').value = '';
+  document.getElementById('changePwdConfirm').value = '';
+  document.getElementById('changePwdError').textContent = '';
+}
+
+function closeChangePwdModal() {
+  document.getElementById('changePwdModal').classList.add('hidden');
+}
+
+async function handleChangePwd() {
+  const old_pw = document.getElementById('changePwdOld').value;
+  const new_pw = document.getElementById('changePwdNew').value;
+  const confirm = document.getElementById('changePwdConfirm').value;
+  const errEl = document.getElementById('changePwdError');
+  if (!old_pw || !new_pw) { errEl.textContent = '请填写完整'; return; }
+  if (new_pw.length < 6) { errEl.textContent = '新密码至少6个字符'; return; }
+  if (new_pw !== confirm) { errEl.textContent = '两次密码不一致'; return; }
+  try {
+    const res = await api.changePassword(old_pw, new_pw);
+    if (res.error) { errEl.textContent = res.error; return; }
+    toast('密码修改成功');
+    closeChangePwdModal();
+  } catch (e) { errEl.textContent = '修改失败'; }
+}
+
 function showAuth() {
   document.getElementById('authOverlay').classList.remove('hidden');
   document.getElementById('loginForm').classList.remove('hidden');
@@ -160,6 +192,7 @@ function updateUIForRole() {
   const isAdmin = currentUser && currentUser.role === 'admin';
   document.getElementById('addBtn').classList.remove('hidden');
   document.getElementById('userMgmtBtn').classList.toggle('hidden', !isAdmin);
+  document.getElementById('changePwdBtn').classList.remove('hidden');
   document.getElementById('logoutBtn').classList.remove('hidden');
   document.getElementById('exportBtn').classList.toggle('hidden', !isAdmin);
   document.getElementById('logBtn').classList.toggle('hidden', !isAdmin);
@@ -223,6 +256,7 @@ async function handleRegister() {
 function handleLogout() {
   localStorage.removeItem('auth_token');
   currentUser = null;
+  document.getElementById('changePwdBtn').classList.add('hidden');
   document.getElementById('logoutBtn').classList.add('hidden');
   document.getElementById('addBtn').classList.remove('hidden');
   document.getElementById('userMgmtBtn').classList.add('hidden');
@@ -246,6 +280,9 @@ document.getElementById('showLoginBtn').addEventListener('click', (e) => {
 document.getElementById('registerBtn').addEventListener('click', handleRegister);
 document.getElementById('registerConfirm').addEventListener('keydown', (e) => { if (e.key === 'Enter') handleRegister(); });
 document.getElementById('logoutBtn').addEventListener('click', handleLogout);
+document.getElementById('changePwdBtn').addEventListener('click', openChangePwdModal);
+document.getElementById('changePwdSubmit').addEventListener('click', handleChangePwd);
+document.getElementById('changePwdConfirm').addEventListener('keydown', (e) => { if (e.key === 'Enter') handleChangePwd(); });
 document.getElementById('logBtn').addEventListener('click', openLogModal);
 document.getElementById('exportBtn').addEventListener('click', async () => {
   try { await api.exportXlsx(); } catch (e) { toast(e.message); }
