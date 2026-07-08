@@ -7,6 +7,7 @@ backups/*
 *.err
 *.db
 .env
+.sync-config.json
 *.bat
 *.vbs
 *.exe
