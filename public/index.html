@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>花牛苹果芽变信息数据库</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍎</text></svg>">
+  <meta name="theme-color" content="#8B0000">
+  <link rel="stylesheet" href="css/style.css?v=6">
+</head>
+<body>
+  <div id="authOverlay" class="auth-overlay">
+    <div class="auth-box">
+      <h2>🍎 花牛苹果芽变信息数据库</h2>
+      <p class="auth-subtitle">天水市果树研究所 · 花牛苹果芽变新品系电子档案管理系统</p>
+      <div id="loginForm">
+        <div class="form-group">
+          <input type="text" id="loginUsername" placeholder="用户名">
+        </div>
+        <div class="form-group">
+          <div class="pwd-wrapper">
+            <input type="password" id="loginPassword" placeholder="密码">
+            <button type="button" class="pwd-toggle" tabindex="-1" onclick="togglePwd(this)" aria-label="显示密码">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+        </div>
+        <button id="loginBtn" class="btn btn-submit" style="width:100%">登录</button>
+        <p class="auth-link">没有账号？<a href="#" id="showRegisterBtn">注册</a></p>
+        <p class="auth-error" id="authError"></p>
+      </div>
+      <div id="registerForm" class="hidden">
+        <div class="form-group">
+          <input type="text" id="registerUsername" placeholder="用户名/姓名（至少2个汉字）">
+        </div>
+        <div class="form-group">
+          <div class="pwd-wrapper">
+            <input type="password" id="registerPassword" placeholder="密码（至少6个字符）">
+            <button type="button" class="pwd-toggle" tabindex="-1" onclick="togglePwd(this)" aria-label="显示密码">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="pwd-wrapper">
+            <input type="password" id="registerConfirm" placeholder="确认密码">
+            <button type="button" class="pwd-toggle" tabindex="-1" onclick="togglePwd(this)" aria-label="显示密码">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+        </div>
+        <button id="registerBtn" class="btn btn-submit" style="width:100%">注册</button>
+        <p class="auth-link">已有账号？<a href="#" id="showLoginBtn">登录</a></p>
+        <p class="auth-error" id="authError2"></p>
+      </div>
+    </div>
+  </div>
+
+  <header>
+    <div class="header-inner">
+      <h1>🍎 花牛苹果芽变信息数据库</h1>
+      <p class="subtitle">天水市果树研究所 · 花牛苹果芽变新品系电子档案管理系统</p>
+    </div>
+  </header>
+
+  <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+  <main>
+    <div class="toolbar">
+      <div class="search-group">
+        <button id="sidebarOpenBtn" class="btn-sidebar-open" aria-label="打开侧栏">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M2 4h14M2 9h14M2 14h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </button>
+        <input type="text" id="searchInput" placeholder="按品系名称/品种搜索...">
+        <button id="searchBtn" class="btn btn-search"><span class="icon">🔍</span> 搜索</button>
+      </div>
+      <div class="action-group">
+        <button id="statsBtn" class="btn btn-stats"><span class="icon">📊</span><span> 统计</span></button>
+        <button id="userMgmtBtn" class="btn btn-admin hidden"><span class="icon">👥</span><span> 用户管理</span></button>
+        <button id="logBtn" class="btn btn-admin hidden"><span class="icon">📋</span><span> 操作日志</span></button>
+        <button id="addBtn" class="btn btn-add"><span class="icon">＋</span><span> 添加芽变</span></button>
+        <button id="exportBtn" class="btn btn-export hidden"><span class="icon">📥</span><span> 导出</span></button>
+        <button id="logoutBtn" class="btn btn-logout hidden">注销</button>
+      </div>
+    </div>
+
+    <div class="layout">
+      <aside class="sidebar" id="taxonomySidebar">
+        <div class="sidebar-header">
+          <h3>分类索引</h3>
+          <div class="sidebar-header-actions">
+            <button id="clearTaxonomy" class="btn-clear-filter hidden">清除筛选</button>
+            <button id="sidebarCloseBtn" class="btn-sidebar-close" aria-label="关闭侧栏">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            </button>
+            <button id="sidebarToggleBtn" class="btn-sidebar-toggle" title="收起侧栏">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M8 2L4 6l4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="sidebar-tabs">
+          <button class="sidebar-tab active" data-tab="statuses">状态</button>
+          <button class="sidebar-tab" data-tab="investigation-teams">调查组</button>
+          <button class="sidebar-tab" data-tab="tree-ages">树龄</button>
+        </div>
+        <div class="sidebar-body" id="taxonomyBody">
+          <div class="taxonomy-loading">加载中...</div>
+        </div>
+      </aside>
+
+      <div class="content">
+        <div id="currentFilter" class="current-filter hidden">
+          <span class="filter-label">当前筛选：</span>
+          <span id="filterText" class="filter-text"></span>
+          <button id="clearFilterBtn" class="btn-clear-filter">✕ 清除</button>
+        </div>
+
+        <div id="loading" class="loading hidden">
+          <div class="spinner"></div>
+          <span>加载中...</span>
+        </div>
+
+        <div id="cardGrid" class="card-grid"></div>
+
+        <div id="emptyState" class="empty-state hidden">
+          <div class="empty-icon">🍎</div>
+          <p>暂无数据，请点击"添加芽变"录入</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div id="modalOverlay" class="modal-overlay hidden">
+    <div class="modal modal-lg">
+      <div class="modal-header">
+        <h2 id="modalTitle">添加芽变</h2>
+        <button class="btn-close" onclick="closeModal()">✕</button>
+      </div>
+      <form id="mutationForm" class="modal-body">
+        <input type="hidden" id="editId" value="">
+
+        <div class="section-tabs" id="sectionTabs">
+          <button type="button" class="section-tab active" data-section="basic">1 基本信息</button>
+          <button type="button" class="section-tab" data-section="morph">2 形态特征与生物学特性</button>
+          <button type="button" class="section-tab" data-section="phenophase">3 物候期</button>
+          <button type="button" class="section-tab" data-section="fruit">4 果实品质特性</button>
+          <button type="button" class="section-tab" data-section="stress">5 抗逆性</button>
+          <button type="button" class="section-tab" data-section="pest">6 抗病虫性</button>
+        </div>
+
+        <div class="section-content" id="section-basic">
+
+          <div class="form-subsection">
+            <div class="form-subsection-header">芽变信息</div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>芽变品种（系）编号 *</label>
+                <input type="text" id="name" required placeholder="格式：地区/小组编码+序号">
+              </div>
+              <div class="form-group">
+                <label>母本砧穗组合</label>
+                <input type="text" id="rootstockScion" placeholder="如：天汪一号/八棱海棠">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>芽变特征</label>
+              <textarea id="mutationChars" rows="2" placeholder="描述芽变的主要特征..."></textarea>
+            </div>
+            <div class="form-group">
+              <label>芽变株特征照片</label>
+              <div class="field-desc">主要包括植株、花、果实、特异性状等。图像要清晰，对象要突出，拍摄实物时请确保编号入镜，防止长期追踪时混淆。</div>
+              <input type="file" id="image" accept="image/*">
+              <div id="imagePreview" class="preview-area"></div>
+            </div>
+            <div class="form-group">
+              <label>状态</label>
+              <div class="radio-group">
+                <label class="radio-label"><input type="radio" name="status" value="已引种观察"> 已引种观察</label>
+                <label class="radio-label"><input type="radio" name="status" value="母本果园调研中" checked> 母本果园调研中</label>
+                <label class="radio-label"><input type="radio" name="status" value="淘汰"> 淘汰</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-subsection">
+            <div class="form-subsection-header">母本果园信息</div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>果园地址</label>
+                <input type="text" id="orchardAddress" placeholder="如：麦积区XX镇XX村">
+              </div>
+              <div class="form-group">
+                <label>村名或合作社（企业）名称</label>
+                <input type="text" id="villageName" placeholder="如：XX合作社">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>果园负责人</label>
+                <input type="text" id="orchardManager" placeholder="负责人姓名">
+              </div>
+              <div class="form-group">
+                <label>联系电话</label>
+                <input type="text" id="contactPhone" placeholder="联系电话">
+              </div>
+            </div>
+            <div class="form-row form-row-geo">
+              <div class="form-group form-group-small">
+                <label>经度</label>
+                <input type="text" id="longitude" placeholder="如：105.89">
+              </div>
+              <div class="form-group form-group-small">
+                <label>纬度</label>
+                <input type="text" id="latitude" placeholder="如：34.58">
+              </div>
+              <div class="form-group form-group-small">
+                <label>海拔 (m)</label>
+                <input type="text" id="altitude" placeholder="如：1250">
+              </div>
+              <div class="form-group form-group-btn">
+                <button type="button" id="getLocationBtn" class="btn btn-location" title="获取当前位置">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                  获取当前位置
+                </button>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>果园地理位置图片</label>
+                <input type="file" id="locationImage" accept="image/*">
+                <div id="locationImagePreview" class="preview-area"></div>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>果园类型</label>
+                <div class="orchard-type-group">
+                  <select id="orchardType" class="orchard-type-select">
+                    <option value="">请选择</option>
+                    <option value="规模化种植园">规模化种植园</option>
+                    <option value="农户分散种植区">农户分散种植区</option>
+                    <option value="山地果园">山地果园</option>
+                    <option value="川地果园">川地果园</option>
+                    <option value="特殊环境果园">特殊环境果园</option>
+                    <option value="其他">其他</option>
+                  </select>
+                  <input type="text" id="orchardTypeOther" class="orchard-type-other" placeholder="请注明" style="display:none">
+                </div>
+              </div>
+              <div class="form-group">
+                <label>主栽品种</label>
+                <div class="orchard-type-group">
+                  <select id="mainVariety" class="orchard-type-select">
+                    <option value="">请选择</option>
+                    <option value="红元帅">红元帅</option>
+                    <option value="红星">红星</option>
+                    <option value="天汪一号">天汪一号</option>
+                    <option value="超红星">超红星</option>
+                    <option value="新红星">新红星</option>
+                    <option value="首红">首红</option>
+                    <option value="新首红">新首红</option>
+                    <option value="阿斯矮生">阿斯矮生</option>
+                    <option value="俄矮2号">俄矮2号</option>
+                    <option value="瓦里短枝">瓦里短枝</option>
+                    <option value="惠民短枝">惠民短枝</option>
+                    <option value="栽培2号">栽培2号</option>
+                    <option value="玛斯特红蛇">玛斯特红蛇</option>
+                    <option value="秦脆">秦脆</option>
+                    <option value="富士系">富士系</option>
+                    <option value="嘎拉">嘎拉</option>
+                    <option value="其他">其他</option>
+                  </select>
+                  <input type="text" id="mainVarietyOther" class="orchard-type-other" placeholder="请注明" style="display:none">
+                </div>
+              </div>
+            </div>
+            <div class="form-row form-row-3col">
+              <div class="form-group form-group-small">
+                <label>树龄 (年)</label>
+                <input type="text" id="treeAge">
+                <div class="field-desc">从嫁接算起</div>
+              </div>
+              <div class="form-group form-group-small">
+                <label>始果年龄 (a)</label>
+                <input type="text" id="fruitingAge">
+                <div class="field-desc">从初次挂果算起</div>
+              </div>
+              <div class="form-group form-group-small">
+                <label>苗木来源</label>
+                <div class="orchard-type-group">
+                  <select id="seedlingSource" class="orchard-type-select">
+                    <option value="">请选择</option>
+                    <option value="私人购买">私人购买</option>
+                    <option value="政府采购">政府采购</option>
+                    <option value="本地自育">本地自育</option>
+                    <option value="其他">其他</option>
+                  </select>
+                  <input type="text" id="seedlingSourceOther" class="orchard-type-other" placeholder="请注明" style="display:none">
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>栽培管理情况</label>
+              <textarea id="cultivationManagement" rows="2" placeholder="果园近年施肥、修剪、灌溉等情况"></textarea>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>植物生长调节剂使用情况</label>
+                <div class="orchard-type-group">
+                  <select id="growthRegulatorUse" class="orchard-type-select">
+                    <option value="">请选择</option>
+                    <option value="使用">使用</option>
+                    <option value="未使用">未使用</option>
+                    <option value="不确定">不确定</option>
+                    <option value="其他">其他</option>
+                  </select>
+                  <input type="text" id="growthRegulatorUseOther" class="orchard-type-other" placeholder="请注明" style="display:none">
+                </div>
+              </div>
+              <div class="form-group">
+                <label>特殊环境</label>
+                <div class="orchard-type-group">
+                  <select id="specialEnvironment" class="orchard-type-select">
+                    <option value="">请选择</option>
+                    <option value="冻害">冻害</option>
+                    <option value="雹灾">雹灾</option>
+                    <option value="干旱">干旱</option>
+                    <option value="多雨">多雨</option>
+                    <option value="辐射">辐射</option>
+                    <option value="磁场">磁场</option>
+                    <option value="无">无</option>
+                    <option value="其他">其他</option>
+                  </select>
+                  <input type="text" id="specialEnvironmentOther" class="orchard-type-other" placeholder="请注明" style="display:none">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-subsection">
+            <div class="form-subsection-header">调查组信息</div>
+            <div class="form-group">
+              <label>调查组</label>
+              <select id="investigationTeam" class="orchard-type-select">
+                <option value="">请选择</option>
+                <option value="秦州组">秦州组</option>
+                <option value="麦积组">麦积组</option>
+                <option value="甘谷组">甘谷组</option>
+                <option value="秦安组">秦安组</option>
+                <option value="清水组">清水组</option>
+                <option value="武山组">武山组</option>
+                <option value="自主培育组">自主培育组</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>调查成员</label>
+                <div class="member-input-group">
+                  <input type="text" id="investigationMemberInput" placeholder="输入成员姓名">
+                  <button type="button" id="addMemberBtn" class="btn btn-sm">添加成员</button>
+                </div>
+                <div id="memberList" class="member-list"></div>
+              </div>
+              <div class="form-group">
+                <label>联系电话</label>
+                <input type="text" id="teamContact" placeholder="联系电话">
+              </div>
+            </div>
+          </div>
+
+          <div class="form-subsection">
+            <div class="form-subsection-header">自定义</div>
+            <div class="form-group">
+              <div class="custom-fields-header">
+                <label>自定义项目</label>
+                <button type="button" id="manageCustomFieldsBtn" class="btn btn-sm">管理</button>
+              </div>
+              <div id="customFieldsContainer"></div>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="section-content hidden" id="section-morph">
+          <div class="form-section">形态特征与生物学特性</div>
+          <div class="form-group">
+            <label>树势</label>
+            <input type="text" id="treeVigor" placeholder="如：强、中、弱">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>枝条性状</label>
+              <input type="text" id="branchChars" placeholder="描述枝条特性（节间长度、分枝角度等）">
+            </div>
+            <div class="form-group">
+              <label>叶片性状</label>
+              <input type="text" id="leafChars" placeholder="描述叶片特征（大小、颜色、形状等）">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>丰产性</label>
+            <input type="text" id="yieldPerf" placeholder="如：丰产、稳产">
+          </div>
+        </div>
+
+        <div class="section-content hidden" id="section-phenophase">
+          <div class="form-section">物候期</div>
+          <div class="form-group">
+            <textarea id="phenophase" rows="6" placeholder="描述萌芽、开花、成熟期等物候信息..."></textarea>
+          </div>
+        </div>
+
+        <div class="section-content hidden" id="section-fruit">
+          <div class="form-section">果实品质特性</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>果形</label>
+              <input type="text" id="fruitShape" placeholder="如：圆锥形、扁圆形">
+            </div>
+            <div class="form-group">
+              <label>色泽</label>
+              <input type="text" id="fruitColor" placeholder="如：浓红、片红、条红">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>果实大小 (g)</label>
+              <input type="text" id="fruitSize" placeholder="如：200-250">
+            </div>
+            <div class="form-group">
+              <label>果形指数</label>
+              <input type="text" id="fruitIndex" placeholder="如：0.88">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>可溶性固形物 (%)</label>
+              <input type="text" id="solubleSolids" placeholder="如：14.5">
+            </div>
+            <div class="form-group">
+              <label>硬度 (kg/cm²)</label>
+              <input type="text" id="firmness" placeholder="如：8.5">
+            </div>
+          </div>
+        </div>
+
+        <div class="section-content hidden" id="section-stress">
+          <div class="form-section">抗逆性</div>
+          <div class="form-group">
+            <textarea id="stressResistance" rows="6" placeholder="描述抗旱性、抗寒性、耐涝性等抗逆特性..."></textarea>
+          </div>
+        </div>
+
+        <div class="section-content hidden" id="section-pest">
+          <div class="form-section">抗病虫性</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>抗病性</label>
+              <input type="text" id="diseaseResistance" placeholder="如：强、中、弱">
+            </div>
+            <div class="form-group">
+              <label>抗虫性</label>
+              <input type="text" id="pestResistance" placeholder="如：强、中、弱">
+            </div>
+          </div>
+        </div>
+
+        <div class="section-nav">
+          <div class="section-nav-left">
+            <button type="button" class="btn btn-cancel" id="prevSection" style="display:none">上一项</button>
+          </div>
+          <div class="section-nav-right">
+            <button type="button" class="btn btn-submit" id="nextSection">下一项</button>
+            <button type="submit" class="btn btn-submit" id="submitForm">保存</button>
+            <button type="button" class="btn btn-cancel" onclick="handlePrint()">打印</button>
+            <button type="button" class="btn btn-cancel" onclick="closeModal()">取消</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="detailModal" class="modal-overlay hidden">
+    <div class="modal modal-lg">
+      <div class="modal-header">
+        <h2 id="detailTitle">芽变详情</h2>
+        <button class="btn-close" onclick="closeDetail()">✕</button>
+      </div>
+      <div class="modal-body" id="detailBody"></div>
+    </div>
+  </div>
+
+  <div id="statsModal" class="modal-overlay hidden">
+    <div class="modal modal-lg modal-stats">
+      <div class="modal-header">
+        <h2>数据统计</h2>
+        <button class="btn-close" onclick="closeStats()">✕</button>
+      </div>
+      <div class="modal-body" id="statsBody">
+        <div class="loading"><div class="spinner"></div><span>加载中...</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="customFieldsModal" class="modal-overlay hidden">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>管理自定义项目</h2>
+        <button class="btn-close" onclick="closeCustomFieldsModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-row">
+          <div class="form-group" style="flex:1">
+            <input type="text" id="newCustomFieldName" placeholder="输入自定义项目名称">
+          </div>
+          <div class="form-group">
+            <button id="addCustomFieldBtn" class="btn btn-submit">添加</button>
+          </div>
+        </div>
+        <div id="customFieldsList"></div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-cancel" onclick="closeCustomFieldsModal()">关闭</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="userMgmtModal" class="modal-overlay hidden">
+    <div class="modal modal-lg">
+      <div class="modal-header">
+        <h2>用户管理</h2>
+        <button class="btn-close" onclick="closeUserMgmt()">✕</button>
+      </div>
+      <div class="modal-body" id="userMgmtBody">
+        <div class="loading"><div class="spinner"></div><span>加载中...</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="logModal" class="modal-overlay hidden">
+    <div class="modal modal-lg">
+      <div class="modal-header">
+        <h2>操作日志</h2>
+        <button class="btn-close" onclick="closeLogModal()">✕</button>
+      </div>
+      <div class="modal-body" id="logBody">
+        <div class="loading"><div class="spinner"></div><span>加载中...</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="confirmModal" class="modal-overlay hidden">
+    <div class="modal confirm-modal">
+      <div class="modal-header">
+        <h2>确认</h2>
+      </div>
+      <div class="modal-body">
+        <p id="confirmMessage"></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-cancel" id="confirmCancel">取消</button>
+        <button type="button" class="btn btn-submit" id="confirmOk">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="js/app.js?v=3"></script>
+</body>
+</html>

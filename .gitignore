@@ -1,0 +1,15 @@
+node_modules/
+uploads/*
+!uploads/.gitkeep
+backups/*
+!backups/.gitkeep
+*.log
+*.err
+*.db
+!mutations.db
+.env
+*.bat
+*.vbs
+*.exe
+.DS_Store
+Thumbs.db

@@ -1,0 +1,11 @@
+node_modules
+.git
+*.bat
+*.vbs
+*.log
+*.err
+.DS_Store
+Thumbs.db
+backups
+uploads
+.env
