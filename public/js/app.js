@@ -344,6 +344,16 @@ function renderCards(data) {
   `).join('');
 }
 
+function fmtTime(utcStr) {
+  if (!utcStr) return '';
+  try {
+    const d = new Date(utcStr.replace(' ', 'T') + 'Z');
+    if (isNaN(d.getTime())) return utcStr;
+    const opt = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
+    return d.toLocaleString(undefined, opt);
+  } catch (e) { return utcStr; }
+}
+
 function esc(s) {
   if (s == null) return '';
   const d = document.createElement('div');
@@ -1258,7 +1268,7 @@ async function openUserMgmt() {
             <td>${u.id}</td>
             <td>${esc(u.username)}</td>
             <td>${u.role === 'admin' ? '管理员' : '普通用户'}</td>
-            <td>${esc(u.created_at)}</td>
+            <td>${fmtTime(u.created_at)}</td>
             <td>${u.role !== 'admin' ? `<button class="btn btn-sm btn-delete-field" onclick="adminDeleteUser(${u.id})">删除</button>` : '-'}</td>
           </tr>
         `).join('')}
@@ -1296,7 +1306,7 @@ async function openLogModal() {
     }
     body.innerHTML = '<table class="user-table"><thead><tr><th>时间</th><th>用户</th><th>操作</th><th>目标</th><th>详情</th></tr></thead><tbody>'
       + data.logs.map(l => '<tr><td>'
-        + esc(l.created_at) + '</td><td>'
+        + fmtTime(l.created_at) + '</td><td>'
         + esc(l.username || '系统') + '</td><td>'
         + esc(l.action) + '</td><td>'
         + esc(l.target_type) + ' #' + l.target_id + '</td><td>'
