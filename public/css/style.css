@@ -513,6 +513,42 @@ main {
 .orchard-type-select { flex: 1; padding: 8px 10px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-size: 14px; background: white; }
 .orchard-type-other { flex: 1; }
 
+.form-group-wide { flex: 1 1 100%; }
+.checkbox-inline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px 10px;
+}
+.checkbox-inline label {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 13px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.checkbox-inline input[type="checkbox"] { accent-color: var(--primary); margin: 0; }
+.checkbox-other-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.checkbox-other-inline label {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 13px;
+  white-space: nowrap;
+}
+.checkbox-other-inline input[type="text"] {
+  width: 120px;
+  padding: 3px 8px;
+  border: 1px solid var(--gray-300);
+  border-radius: var(--radius);
+  font-size: 13px;
+}
+
 .field-desc { font-size: 12px; color: var(--gray-400); line-height: 1.5; margin-bottom: 6px; }
 
 .member-input-group { display: flex; gap: 8px; }

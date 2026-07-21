@@ -6,7 +6,7 @@
   <title>花牛苹果芽变信息数据库</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍎</text></svg>">
   <meta name="theme-color" content="#8B0000">
-  <link rel="stylesheet" href="css/style.css?v=6">
+  <link rel="stylesheet" href="css/style.css?v=9">
 </head>
 <body>
   <div id="authOverlay" class="auth-overlay">
@@ -248,30 +248,29 @@
                   <input type="text" id="orchardTypeOther" class="orchard-type-other" placeholder="请注明" style="display:none">
                 </div>
               </div>
-              <div class="form-group">
+              <div class="form-group form-group-wide">
                 <label>主栽品种</label>
-                <div class="orchard-type-group">
-                  <select id="mainVariety" class="orchard-type-select">
-                    <option value="">请选择</option>
-                    <option value="红元帅">红元帅</option>
-                    <option value="红星">红星</option>
-                    <option value="天汪一号">天汪一号</option>
-                    <option value="超红星">超红星</option>
-                    <option value="新红星">新红星</option>
-                    <option value="首红">首红</option>
-                    <option value="新首红">新首红</option>
-                    <option value="阿斯矮生">阿斯矮生</option>
-                    <option value="俄矮2号">俄矮2号</option>
-                    <option value="瓦里短枝">瓦里短枝</option>
-                    <option value="惠民短枝">惠民短枝</option>
-                    <option value="栽培2号">栽培2号</option>
-                    <option value="玛斯特红蛇">玛斯特红蛇</option>
-                    <option value="秦脆">秦脆</option>
-                    <option value="富士系">富士系</option>
-                    <option value="嘎拉">嘎拉</option>
-                    <option value="其他">其他</option>
-                  </select>
-                  <input type="text" id="mainVarietyOther" class="orchard-type-other" placeholder="请注明" style="display:none">
+                <div class="checkbox-inline">
+                  <label><input type="checkbox" name="main_variety" value="红元帅"> 红元帅</label>
+                  <label><input type="checkbox" name="main_variety" value="红星"> 红星</label>
+                  <label><input type="checkbox" name="main_variety" value="天汪一号"> 天汪一号</label>
+                  <label><input type="checkbox" name="main_variety" value="超红星"> 超红星</label>
+                  <label><input type="checkbox" name="main_variety" value="新红星"> 新红星</label>
+                  <label><input type="checkbox" name="main_variety" value="首红"> 首红</label>
+                  <label><input type="checkbox" name="main_variety" value="新首红"> 新首红</label>
+                  <label><input type="checkbox" name="main_variety" value="阿斯矮生"> 阿斯矮生</label>
+                  <label><input type="checkbox" name="main_variety" value="俄矮2号"> 俄矮2号</label>
+                  <label><input type="checkbox" name="main_variety" value="瓦里短枝"> 瓦里短枝</label>
+                  <label><input type="checkbox" name="main_variety" value="惠民短枝"> 惠民短枝</label>
+                  <label><input type="checkbox" name="main_variety" value="栽培2号"> 栽培2号</label>
+                  <label><input type="checkbox" name="main_variety" value="玛斯特红蛇"> 玛斯特红蛇</label>
+                  <label><input type="checkbox" name="main_variety" value="秦脆"> 秦脆</label>
+                  <label><input type="checkbox" name="main_variety" value="富士系"> 富士系</label>
+                  <label><input type="checkbox" name="main_variety" value="嘎拉"> 嘎拉</label>
+                  <span class="checkbox-other-inline">
+                    <label><input type="checkbox" id="mainVarietyOtherCheck"> 其他</label>
+                    <input type="text" id="mainVarietyOther" placeholder="请注明" style="display:none">
+                  </span>
                 </div>
               </div>
             </div>
@@ -610,6 +609,6 @@
 
   <div id="toast" class="toast hidden"></div>
 
-  <script src="js/app.js?v=3"></script>
+  <script src="js/app.js?v=6"></script>
 </body>
 </html>

@@ -3,6 +3,42 @@ let editingId = null;
 let currentFilter = { status: '', investigation_team: '', tree_age_min: '', tree_age_max: '' };
 let currentUser = null;
 
+function getMainVarietyValue() {
+  const checked = [];
+  document.querySelectorAll('input[name="main_variety"]:checked').forEach(cb => checked.push(cb.value));
+  const otherCheck = document.getElementById('mainVarietyOtherCheck');
+  const otherInput = document.getElementById('mainVarietyOther');
+  if (otherCheck && otherCheck.checked && otherInput && otherInput.value.trim()) {
+    otherInput.value.split(',').map(s => s.trim()).filter(Boolean).forEach(v => checked.push(v));
+  }
+  return checked.join(', ');
+}
+
+function setMainVarietyValue(val) {
+  const values = val ? val.split(',').map(s => s.trim()).filter(Boolean) : [];
+  const known = ['红元帅','红星','天汪一号','超红星','新红星','首红','新首红','阿斯矮生','俄矮2号','瓦里短枝','惠民短枝','栽培2号','玛斯特红蛇','秦脆','富士系','嘎拉'];
+  const knownSet = new Set(known);
+  document.querySelectorAll('input[name="main_variety"]').forEach(cb => {
+    cb.checked = knownSet.has(cb.value) && values.includes(cb.value);
+  });
+  const custom = values.filter(v => !knownSet.has(v));
+  const otherCheck = document.getElementById('mainVarietyOtherCheck');
+  const otherInput = document.getElementById('mainVarietyOther');
+  if (otherCheck) otherCheck.checked = custom.length > 0;
+  if (otherInput) {
+    otherInput.value = custom.join(', ');
+    otherInput.style.display = custom.length > 0 ? '' : 'none';
+  }
+}
+
+function resetMainVariety() {
+  document.querySelectorAll('input[name="main_variety"]').forEach(cb => cb.checked = false);
+  const otherCheck = document.getElementById('mainVarietyOtherCheck');
+  const otherInput = document.getElementById('mainVarietyOther');
+  if (otherCheck) otherCheck.checked = false;
+  if (otherInput) { otherInput.value = ''; otherInput.style.display = 'none'; }
+}
+
 function togglePwd(btn) {
   const input = btn.parentElement.querySelector('input');
   const isPwd = input.type === 'password';
@@ -283,6 +319,7 @@ document.getElementById('logoutBtn').addEventListener('click', handleLogout);
 document.getElementById('changePwdBtn').addEventListener('click', openChangePwdModal);
 document.getElementById('changePwdSubmit').addEventListener('click', handleChangePwd);
 document.getElementById('changePwdConfirm').addEventListener('keydown', (e) => { if (e.key === 'Enter') handleChangePwd(); });
+document.getElementById('changePwdModal').addEventListener('click', (e) => { if (e.target === e.currentTarget) closeChangePwdModal(); });
 document.getElementById('logBtn').addEventListener('click', openLogModal);
 document.getElementById('exportBtn').addEventListener('click', async () => {
   try { await api.exportXlsx(); } catch (e) { toast(e.message); }
@@ -387,15 +424,7 @@ function openModal(title, data) {
       document.getElementById('orchardTypeOther').style.display = '';
     }
     const mvVal = data.main_variety || '';
-    const mvPredefined = ['红元帅', '红星', '天汪一号', '超红星', '新红星', '首红', '新首红', '阿斯矮生', '俄矮2号', '瓦里短枝', '惠民短枝', '栽培2号', '玛斯特红蛇', '秦脆', '富士系', '嘎拉'];
-    if (mvPredefined.includes(mvVal)) {
-      document.getElementById('mainVariety').value = mvVal;
-      document.getElementById('mainVarietyOther').style.display = 'none';
-    } else if (mvVal) {
-      document.getElementById('mainVariety').value = '其他';
-      document.getElementById('mainVarietyOther').value = mvVal;
-      document.getElementById('mainVarietyOther').style.display = '';
-    }
+    setMainVarietyValue(mvVal);
     const ssVal = data.seedling_source || '';
     const ssPredefined = ['私人购买', '政府采购', '本地自育'];
     if (ssPredefined.includes(ssVal)) {
@@ -474,9 +503,7 @@ function closeModal() {
   document.getElementById('orchardType').value = '';
   document.getElementById('orchardTypeOther').value = '';
   document.getElementById('orchardTypeOther').style.display = 'none';
-  document.getElementById('mainVariety').value = '';
-  document.getElementById('mainVarietyOther').value = '';
-  document.getElementById('mainVarietyOther').style.display = 'none';
+  resetMainVariety();
   document.getElementById('seedlingSource').value = '';
   document.getElementById('seedlingSourceOther').value = '';
   document.getElementById('seedlingSourceOther').style.display = 'none';
@@ -535,8 +562,7 @@ document.getElementById('mutationForm').addEventListener('submit', async (e) => 
   fd.append('contact_phone', document.getElementById('contactPhone').value.trim());
   const ot = document.getElementById('orchardType').value;
   fd.append('orchard_type', ot === '其他' ? document.getElementById('orchardTypeOther').value.trim() : ot);
-  const mv = document.getElementById('mainVariety').value;
-  fd.append('main_variety', mv === '其他' ? document.getElementById('mainVarietyOther').value.trim() : mv);
+  fd.append('main_variety', getMainVarietyValue());
   const ss = document.getElementById('seedlingSource').value;
   fd.append('seedling_source', ss === '其他' ? document.getElementById('seedlingSourceOther').value.trim() : ss);
   const gru = document.getElementById('growthRegulatorUse').value;
@@ -657,8 +683,9 @@ document.getElementById('locationImage').addEventListener('change', (e) => {
   document.getElementById('orchardTypeOther').style.display = e.target.value === '其他' ? '' : 'none';
 });
 
-document.getElementById('mainVariety').addEventListener('change', (e) => {
-  document.getElementById('mainVarietyOther').style.display = e.target.value === '其他' ? '' : 'none';
+document.getElementById('mainVarietyOtherCheck').addEventListener('change', (e) => {
+  document.getElementById('mainVarietyOther').style.display = e.target.checked ? '' : 'none';
+  if (!e.target.checked) document.getElementById('mainVarietyOther').value = '';
 });
 
 document.getElementById('seedlingSource').addEventListener('change', (e) => {
