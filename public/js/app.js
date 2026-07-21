@@ -360,8 +360,8 @@ function renderCards(data) {
   empty.classList.add('hidden');
   grid.innerHTML = data.map(item => `
     <div class="card" onclick="showDetail(${item.id})">
-      ${item.image_path
-        ? `<img class="card-image" src="${item.image_path}" alt="${item.name}" loading="lazy">`
+      ${item.image_path || item.location_image
+        ? `<img class="card-image" src="${item.image_path || item.location_image}" alt="${item.name}" loading="lazy">`
         : `<div class="card-image-placeholder">🍎</div>`}
       <div class="card-body">
         <h3>${esc(item.name)} ${item.status ? `<span class="status-badge status-${esc(item.status)}">${esc(item.status)}</span>` : ''}</h3>
@@ -448,13 +448,17 @@ function openModal(title, data) {
     }
     const seVal = data.special_environment || '';
     const sePredefined = ['冻害', '雹灾', '干旱', '多雨', '辐射', '磁场', '无'];
-    if (sePredefined.includes(seVal)) {
-      document.getElementById('specialEnvironment').value = seVal;
-      document.getElementById('specialEnvironmentOther').style.display = 'none';
-    } else if (seVal) {
-      document.getElementById('specialEnvironment').value = '其他';
-      document.getElementById('specialEnvironmentOther').value = seVal;
-      document.getElementById('specialEnvironmentOther').style.display = '';
+    const seSet = new Set(sePredefined);
+    document.querySelectorAll('input[name="special_environment"]').forEach(cb => {
+      cb.checked = sePredefined.includes(cb.value) && seVal.split(',').map(s => s.trim()).includes(cb.value);
+    });
+    const seCustom = seVal.split(',').map(s => s.trim()).filter(v => v && !seSet.has(v));
+    const seOtherCheck = document.getElementById('specialEnvironmentOtherCheck');
+    const seOtherInput = document.getElementById('specialEnvironmentOther');
+    if (seOtherCheck) seOtherCheck.checked = seCustom.length > 0;
+    if (seOtherInput) {
+      seOtherInput.value = seCustom.join(', ');
+      seOtherInput.style.display = seCustom.length > 0 ? '' : 'none';
     }
     memberNames = (data.investigation_members || '').split(',').filter(Boolean);
     renderMembers();
@@ -510,9 +514,11 @@ function closeModal() {
   document.getElementById('growthRegulatorUse').value = '';
   document.getElementById('growthRegulatorUseOther').value = '';
   document.getElementById('growthRegulatorUseOther').style.display = 'none';
-  document.getElementById('specialEnvironment').value = '';
-  document.getElementById('specialEnvironmentOther').value = '';
-  document.getElementById('specialEnvironmentOther').style.display = 'none';
+  document.querySelectorAll('input[name="special_environment"]').forEach(cb => cb.checked = false);
+  const seOtherCheck = document.getElementById('specialEnvironmentOtherCheck');
+  const seOtherInput = document.getElementById('specialEnvironmentOther');
+  if (seOtherCheck) seOtherCheck.checked = false;
+  if (seOtherInput) { seOtherInput.value = ''; seOtherInput.style.display = 'none'; }
   memberNames = [];
   renderMembers();
   document.getElementById('investigationMemberInput').value = '';
@@ -567,8 +573,14 @@ document.getElementById('mutationForm').addEventListener('submit', async (e) => 
   fd.append('seedling_source', ss === '其他' ? document.getElementById('seedlingSourceOther').value.trim() : ss);
   const gru = document.getElementById('growthRegulatorUse').value;
   fd.append('growth_regulator_use', gru === '其他' ? document.getElementById('growthRegulatorUseOther').value.trim() : gru);
-  const se = document.getElementById('specialEnvironment').value;
-  fd.append('special_environment', se === '其他' ? document.getElementById('specialEnvironmentOther').value.trim() : se);
+  const seChecked = [];
+  document.querySelectorAll('input[name="special_environment"]:checked').forEach(cb => seChecked.push(cb.value));
+  const seOtherCheck = document.getElementById('specialEnvironmentOtherCheck');
+  const seOtherInput = document.getElementById('specialEnvironmentOther');
+  if (seOtherCheck && seOtherCheck.checked && seOtherInput && seOtherInput.value.trim()) {
+    seOtherInput.value.split(',').map(s => s.trim()).filter(Boolean).forEach(v => seChecked.push(v));
+  }
+  fd.append('special_environment', seChecked.join(', '));
   fd.append('cultivation_management', document.getElementById('cultivationManagement').value.trim());
   fd.append('investigation_members', memberNames.join(','));
   fd.append('investigation_team', document.getElementById('investigationTeam').value.trim());
@@ -696,8 +708,9 @@ document.getElementById('growthRegulatorUse').addEventListener('change', (e) => 
   document.getElementById('growthRegulatorUseOther').style.display = e.target.value === '其他' ? '' : 'none';
 });
 
-document.getElementById('specialEnvironment').addEventListener('change', (e) => {
-  document.getElementById('specialEnvironmentOther').style.display = e.target.value === '其他' ? '' : 'none';
+document.getElementById('specialEnvironmentOtherCheck').addEventListener('change', (e) => {
+  document.getElementById('specialEnvironmentOther').style.display = e.target.checked ? '' : 'none';
+  if (!e.target.checked) document.getElementById('specialEnvironmentOther').value = '';
 });
 
 let memberNames = [];

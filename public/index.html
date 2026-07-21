@@ -6,7 +6,7 @@
   <title>花牛苹果芽变信息数据库</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍎</text></svg>">
   <meta name="theme-color" content="#8B0000">
-  <link rel="stylesheet" href="css/style.css?v=9">
+  <link rel="stylesheet" href="css/style.css?v=10">
 </head>
 <body>
   <div id="authOverlay" class="auth-overlay">
@@ -317,21 +317,20 @@
                   <input type="text" id="growthRegulatorUseOther" class="orchard-type-other" placeholder="请注明" style="display:none">
                 </div>
               </div>
-              <div class="form-group">
+              <div class="form-group form-group-wide">
                 <label>特殊环境</label>
-                <div class="orchard-type-group">
-                  <select id="specialEnvironment" class="orchard-type-select">
-                    <option value="">请选择</option>
-                    <option value="冻害">冻害</option>
-                    <option value="雹灾">雹灾</option>
-                    <option value="干旱">干旱</option>
-                    <option value="多雨">多雨</option>
-                    <option value="辐射">辐射</option>
-                    <option value="磁场">磁场</option>
-                    <option value="无">无</option>
-                    <option value="其他">其他</option>
-                  </select>
-                  <input type="text" id="specialEnvironmentOther" class="orchard-type-other" placeholder="请注明" style="display:none">
+                <div class="checkbox-inline">
+                  <label><input type="checkbox" name="special_environment" value="冻害"> 冻害</label>
+                  <label><input type="checkbox" name="special_environment" value="雹灾"> 雹灾</label>
+                  <label><input type="checkbox" name="special_environment" value="干旱"> 干旱</label>
+                  <label><input type="checkbox" name="special_environment" value="多雨"> 多雨</label>
+                  <label><input type="checkbox" name="special_environment" value="辐射"> 辐射</label>
+                  <label><input type="checkbox" name="special_environment" value="磁场"> 磁场</label>
+                  <label><input type="checkbox" name="special_environment" value="无"> 无</label>
+                  <span class="checkbox-other-inline">
+                    <label><input type="checkbox" id="specialEnvironmentOtherCheck"> 其他</label>
+                    <input type="text" id="specialEnvironmentOther" placeholder="请注明" style="display:none">
+                  </span>
                 </div>
               </div>
             </div>
